@@ -1,5 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import Venda from "#models/venda";
+import { createVendaValidator, updateVendaValidator } from '#validators/venda';
 
 export default class VendasController {
 
@@ -16,18 +17,19 @@ export default class VendasController {
     }
 
     // Método para criar uma venda pelo Json
-    async store({ request }: HttpContext) {
-        const dados = request.only(['clientes_id', 'funcionarios_id', 'dt_vendas', 'total_vendas'])
-        return await Venda.create(dados)
+    async store({ request, response }: HttpContext) {
+        const dados = await createVendaValidator.validate(request.all())
+        const venda = await Venda.create(dados)
+        return response.created(venda)
     }
 
-    // Atualização de uma venda existente
-    async update({ params, request }: HttpContext) {
+    async update({ params, request, response }: HttpContext) {
         const venda = await Venda.findOrFail(params.id)
-        const dados = request.only(['clientes_id', 'funcionarios_id', 'dt_vendas', 'total_vendas'])
+        const dados = await updateVendaValidator.validate(request.all())
         
         venda.merge(dados)
-        return await venda.save()
+        await venda.save()
+        return response.ok(venda)
     }
 
     // Deletando venda pelo Id do banco de dados

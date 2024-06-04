@@ -1,5 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import Pedido from "#models/pedido";
+import { createProdutoValidator, updateProdutoValidator } from '#validators/produto';
+import Produto from '#models/produto';
 
 export default class PedidosController {
 
@@ -16,18 +18,19 @@ export default class PedidosController {
     }
 
     // Método para criar um pedido pelo Json
-    async store({ request }: HttpContext) {
-        const dados = request.only(['id_cliente', 'dt_pedido', 'status'])
-        return await Pedido.create(dados)
+    async store({ request, response }: HttpContext) {
+        const dados = await createProdutoValidator.validate(request.all())
+        const produto = await Produto.create(dados)
+        return response.created(produto)
     }
 
-    // Atualização de um pedido existente
-    async update({ params, request }: HttpContext) {
-        const pedido = await Pedido.findOrFail(params.id)
-        const dados = request.only(['id_cliente', 'dt_pedido', 'status'])
+    async update({ params, request, response }: HttpContext) {
+        const produto = await Produto.findOrFail(params.id)
+        const dados = await updateProdutoValidator.validate(request.all())
         
-        pedido.merge(dados)
-        return await pedido.save()
+        produto.merge(dados)
+        await produto.save()
+        return response.ok(produto)
     }
 
     // Deletando pedido pelo Id do banco de dados

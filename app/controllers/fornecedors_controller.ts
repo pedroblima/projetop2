@@ -1,6 +1,7 @@
 // import type { HttpContext } from '@adonisjs/core/http'
 
 import Fornecedor from "#models/fornecedor";
+import { createFornecedorValidator, updateFornecedorValidator } from "#validators/fornecedor";
 import { HttpContext } from "@adonisjs/core/http";
 
 export default class FornecedorsController {
@@ -18,19 +19,20 @@ export default class FornecedorsController {
     }
 
     // Método para criar algum Fornecedor pelo Json
-    async store({ request }: HttpContext) {
-        const dados = request.only(['nome', 'telefone', 'endereco'])
-        return await Fornecedor.create(dados)
+    async store({ request, response }: HttpContext) {
+        const dados = await createFornecedorValidator.validate(request.all())
+        const fornecedor = await Fornecedor.create(dados)
+        return response.created(fornecedor)
     }
 
-    async update({params, request}: HttpContext){
+    async update({ params, request, response }: HttpContext) {
         const fornecedor = await Fornecedor.findOrFail(params.id)
-        const dados = request.only(['nome', 'telefone', 'endereco'])
+        const dados = await updateFornecedorValidator.validate(request.all())
         
         fornecedor.merge(dados)
-        return await fornecedor.save()
+        await fornecedor.save()
+        return response.ok(fornecedor)
     }
-
     // Deletando pruduto pelo Id do banco de dados
     async destroy({ params }: HttpContext) {
         const fornecedor = await Fornecedor.findOrFail(params.id)

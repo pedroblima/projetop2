@@ -16,8 +16,8 @@ export default class Pedido extends BaseModel {
   declare cliente: BelongsTo<typeof Cliente>
 
 
-  @column.dateTime()
-  declare dt_pedido: DateTime
+  @column()
+  declare dt_pedido: Date
 
   @column()
   declare status: string
