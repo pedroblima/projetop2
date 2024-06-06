@@ -1,7 +1,6 @@
 // import type { HttpContext } from '@adonisjs/core/http'
 
 import Cliente from "#models/cliente";
-import { createClienteValidator, updateClienteValidator } from "#validators/cliente";
 import { HttpContext } from "@adonisjs/core/http";
 
 export default class ClientesController {
@@ -19,21 +18,19 @@ export default class ClientesController {
     }
 
     // Método para criar algum Cliente pelo Json
-    async store({ request, response }: HttpContext) {
-        const dados = await createClienteValidator.validate(request.all())
-        const cliente = await Cliente.create(dados)
-        return response.created(cliente)
+     // Método para criar algum Cliente pelo Json
+     async store({ request }: HttpContext) {
+        const dados = request.only(['nome', 'cpf', 'telefone', 'email'])
+        return await Cliente.create(dados)
     }
 
-    async update({ params, request, response }: HttpContext) {
-        const cliente = await Cliente.findOrFail(params.id)
-        const dados = await updateClienteValidator.validate(request.all())
-        
-        cliente.merge(dados)
-        await cliente.save()
-        return response.ok(cliente)
-    }
+    async update({params, request}: HttpContext){
+        const clientes = await Cliente.findOrFail(params.id)
+        const dados = request.only(['nome', 'cpf', 'telefone', 'email'])
 
+        clientes.merge(dados)
+        return await clientes.save()
+    }
     // Deletando pruduto pelo Id do banco de dados
     async destroy({ params }: HttpContext) {
         const clientes = await Cliente.findOrFail(params.id)

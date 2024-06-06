@@ -1,5 +1,4 @@
 import Funcionario from "#models/funcionario";
-import { createFuncionarioValidator, updateFuncionarioValidator } from "#validators/funcionario";
 import { HttpContext } from "@adonisjs/core/http";
 
 export default class FuncionariosController {
@@ -17,19 +16,18 @@ export default class FuncionariosController {
     }
 
     // Método para criar um funcionário pelo Json
-    async store({ request, response }: HttpContext) {
-        const dados = await createFuncionarioValidator.validate(request.all())
-        const funcionario = await Funcionario.create(dados)
-        return response.created(funcionario)
+    async store({ request }: HttpContext) {
+        const dados = request.only(['nome', 'cpf', 'cargo', 'salario', 'dt_contratacao'])
+        return await Funcionario.create(dados)
     }
 
-    async update({ params, request, response }: HttpContext) {
+    // Atualização de um funcionário existente
+    async update({ params, request }: HttpContext) {
         const funcionario = await Funcionario.findOrFail(params.id)
-        const dados = await updateFuncionarioValidator.validate(request.all())
-        
+        const dados = request.only(['nome', 'cpf', 'cargo', 'salario', 'dt_contratacao'])
+
         funcionario.merge(dados)
-        await funcionario.save()
-        return response.ok(funcionario)
+        return await funcionario.save()
     }
 
     // Deletando funcionário pelo Id do banco de dados

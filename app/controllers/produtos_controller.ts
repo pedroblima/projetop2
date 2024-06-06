@@ -1,43 +1,41 @@
 import type { HttpContext } from '@adonisjs/core/http'
-import Pedido from "#models/pedido";
-import { createProdutoValidator, updateProdutoValidator } from '#validators/produto';
+import produto from "#models/produto";
 import Produto from '#models/produto';
 
-export default class PedidosController {
+export default class produtosController {
 
-    // Paginação de pedidos
+    // Paginação de produtos
     async index({ request }: HttpContext) {
         const page = request.input('page', 1)
         const perPage = request.input('perPage', 10)
-        return await Pedido.query().paginate(page, perPage)
+        return await produto.query().paginate(page, perPage)
     }
 
     // Requisição por id passado por rota (parâmetros)
     async show({ params }: HttpContext) {
-        return await Pedido.findOrFail(params.id)
+        return await produto.findOrFail(params.id)
     }
 
-    // Método para criar um pedido pelo Json
-    async store({ request, response }: HttpContext) {
-        const dados = await createProdutoValidator.validate(request.all())
-        const produto = await Produto.create(dados)
-        return response.created(produto)
+    // Método para criar um produto pelo Json
+    async store({ request }: HttpContext) {
+        const dados = request.only(['nome', 'descricao', 'preco', 'quantidade'])
+        return await produto.create(dados)
     }
 
-    async update({ params, request, response }: HttpContext) {
+    // Atualização de um produto existente
+    async update({ params, request }: HttpContext) {
         const produto = await Produto.findOrFail(params.id)
-        const dados = await updateProdutoValidator.validate(request.all())
-        
+        const dados = request.only(['nome', 'descricao', 'preco', 'quantidade'])
+
         produto.merge(dados)
-        await produto.save()
-        return response.ok(produto)
+        return await produto.save()
     }
 
-    // Deletando pedido pelo Id do banco de dados
+    // Deletando produto pelo Id do banco de dados
     async destroy({ params }: HttpContext) {
-        const pedido = await Pedido.findOrFail(params.id)
+        const produto = await Produto.findOrFail(params.id)
 
-        await pedido.delete()
-        return { msg: 'Pedido deletado com sucesso', pedido }
+        await produto.delete()
+        return { msg: 'produto deletado com sucesso', produto }
     }
 }
