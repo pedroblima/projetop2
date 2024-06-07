@@ -14,14 +14,10 @@ export default class ItemPedido extends BaseModel {
   @column()
   declare pedidos_id: number
 
-  @belongsTo(() => Produto, {
-    foreignKey: 'produtos_id',
-  })
+  @belongsTo(() => Produto)
   declare produto: BelongsTo<typeof Produto>
 
-  @belongsTo(() => Pedido, {
-    foreignKey: 'pedidos_id', 
-  })
+  @belongsTo(() => Pedido)
   declare pedido: BelongsTo<typeof Pedido>
 
   @column()
